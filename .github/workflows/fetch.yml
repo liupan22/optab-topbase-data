@@ -14,21 +14,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install gdown
-        run: python3 -m pip install --quiet --upgrade gdown
+      - name: Install deps
+        run: python3 -m pip install --quiet requests h5py
 
       - name: Download from Google Drive
         run: |
-          python3 -m gdown --id 1OAEiMVp1WqmH9avVtuEB8_5F7qHj1vKD -O TOPbase.h5
-          ls -l TOPbase.h5
-          sha256sum TOPbase.h5
+          set -o pipefail
+          python3 download_drive.py TOPbase.h5 2>&1 | tee report.txt
+          echo "download_rc=$?" >> report.txt
+          ls -l TOPbase.h5 >> report.txt 2>&1 || true
+          sha256sum TOPbase.h5 >> report.txt 2>&1 || true
 
-      - name: Inspect HDF5 structure
+      - name: Inspect HDF5
+        if: hashFiles('TOPbase.h5') != ''
         run: |
-          python3 -m pip install --quiet h5py
-          python3 scripts/inspect.py TOPbase.h5
+          python3 scripts/inspect.py TOPbase.h5 >> report.txt 2>&1 || true
+
+      - name: Commit report
+        if: always()
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f report.txt || true
+          git add -f first_response.html second_response.html || true
+          git commit -m "report run ${{ github.run_number }}" || true
+          git push || true
 
       - name: Upload artifact
+        if: hashFiles('TOPbase.h5') != ''
         uses: actions/upload-artifact@v4
         with:
           name: topbase
@@ -36,6 +49,7 @@ jobs:
           compression-level: 0
 
       - name: Publish release asset
+        if: hashFiles('TOPbase.h5') != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
