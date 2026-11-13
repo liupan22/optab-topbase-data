@@ -1,0 +1,44 @@
+name: fetch-topbase
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gdown
+        run: python3 -m pip install --quiet --upgrade gdown
+
+      - name: Download from Google Drive
+        run: |
+          python3 -m gdown --id 1OAEiMVp1WqmH9avVtuEB8_5F7qHj1vKD -O TOPbase.h5
+          ls -l TOPbase.h5
+          sha256sum TOPbase.h5
+
+      - name: Inspect HDF5 structure
+        run: |
+          python3 -m pip install --quiet h5py
+          python3 scripts/inspect.py TOPbase.h5
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: topbase
+          path: TOPbase.h5
+          compression-level: 0
+
+      - name: Publish release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create data-${{ github.run_number }} TOPbase.h5 \
+            --title "TOPbase.h5 run ${{ github.run_number }}" \
+            --notes "auto-fetched from Google Drive"
