@@ -1,0 +1,11 @@
+[1] GET https://drive.google.com/uc
+    status 200
+    url https://accounts.google.com/v3/signin/identifier?continue=https://drive.usercontent.google.com/download?id%3D1OAEiMVp1WqmH9avVtuEB8_5F7qHj1vKD%26export%3Ddownload&followup=https://drive.usercontent.go
+    ctype text/html; charset=utf-8 clen None
+    html bytes 1249665
+    confirm_token None
+    uuid None
+    form_action rcuQ6b:npT2md; click:FAbpgf; auxclick:FAbpgf
+[2] status 200 ctype text/html; charset=utf-8 clen None
+    second html bytes 1250480
+    snippet: <!doctype html><html lang="en-US" dir="ltr"><head><base href="https://accounts.google.com/v3/signin/"><link rel="preconnect" href="//www.gstatic.com"><meta name="referrer" content="origin"><script data-id="_gd" nonce="m0BExEjlP3YY6nXCtqE-BA">window.WIZ_global_data = {"AfY8Hf":false,"DndLYb":"","Dpim
